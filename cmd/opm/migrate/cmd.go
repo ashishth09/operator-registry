@@ -13,8 +13,9 @@ import (
 
 func NewCmd() *cobra.Command {
 	var (
-		migrate action.Migrate
-		output  string
+		migrate    action.Migrate
+		output     string
+		splitFiles bool
 	)
 	cmd := &cobra.Command{
 		Use:   "migrate <indexRef> <outputDir>",
@@ -40,7 +41,7 @@ func NewCmd() *cobra.Command {
 			default:
 				log.Fatalf("invalid --output value %q, expected (json|yaml)", output)
 			}
-
+			migrate.SplitFiles = splitFiles
 			logrus.Infof("rendering index %q as file-based catalog", migrate.CatalogRef)
 			if err := migrate.Run(cmd.Context()); err != nil {
 				logrus.New().Fatal(err)
@@ -50,5 +51,6 @@ func NewCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVarP(&output, "output", "o", "json", "Output format (json|yaml)")
+	cmd.Flags().BoolVarP(&splitFiles, "split-files", "s", false, "Output is written to multiple files split into bundles/channels rather than a single file")
 	return cmd
 }
